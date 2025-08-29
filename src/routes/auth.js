@@ -1,6 +1,9 @@
 const express = require("express");
+const axios = require("axios"); 
 const router = express.Router();
 const { signInUser, signUpUser, confirmUser } = require("../utils/cognito.js");
+const dotenv = require("dotenv");
+dotenv.config();
 
 // ✅ Signup
 router.post("/signup", async (req, res) => {
