@@ -1,35 +1,3 @@
-# version: 1
-# applications:
-#   - backend:
-#       phases:
-#         preBuild:
-#           commands:
-#             - echo ">>> preBuild: install pip deps and SAM CLI (user install)"
-#             - python3 -m pip install --user --upgrade pip
-#             - python3 -m pip install --user aws-sam-cli awscli
-#             - export PATH=$PATH:$HOME/.local/bin
-#             - which sam || sam --version
-#             - echo ">>> install node modules"
-#             - npm ci
-#         build:
-#           commands:
-#             - echo ">>> sam build"
-#             - export PATH=$PATH:$HOME/.local/bin
-#             - sam build --use-container || sam build
-#             - echo ">>> sam package -> uploads artifacts to S3"
-#             - sam package --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
-#             - echo ">>> sam deploy"
-#             - sam deploy --template-file packaged.yaml --stack-name $STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --no-confirm-changeset --no-fail-on-empty-changeset
-#       artifacts:
-#         baseDirectory: .
-#         files:
-#           - template.yaml
-#       cache:
-#         paths:
-#           - node_modules/**/*
-
-
-
 version: 1
 env:
   variables:
@@ -70,17 +38,22 @@ backend:
         - sam package --template-file .aws-sam/build/template.yaml --s3-bucket $DEPLOYMENT_BUCKET_NAME --output-template-file packaged.yaml
         # Deploy: include CAPABILITY_NAMED_IAM if your template creates named IAM roles.
         - sam deploy --template-file packaged.yaml --stack-name $STACK_NAME --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides Stage=$STAGE GoogleClientId=$GOOGLE_CLIENT_ID GoogleClientSecret=$GOOGLE_CLIENT_SECRET || true
+  # ADD THIS ARTIFACTS SECTION TO THE BACKEND
+  artifacts:
+    baseDirectory: .
+    files:
+      - packaged.yaml
+      - template.yaml
+      - .aws-sam/build/**/*
 frontend:
   phases:
     build:
       commands:
         - echo "No frontend build (backend-only repo)."
-artifacts:
-  baseDirectory: /
-  files:
-    - packaged.yaml
+  artifacts:
+    baseDirectory: /
+    files:
+      - packaged.yaml
 cache:
   paths:
     - node_modules/**/*
-
-
