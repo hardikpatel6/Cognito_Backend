@@ -4,7 +4,7 @@ backend:
     build:
       commands:
         - npm install -g aws-cdk # if using CDK
-        - pip install aws-sam-cli # if using SAM
+        - pip install aws-sam-cli # if using SAM aaje aalho divas error ma kadhyo su lakhis hu log ma ?
         - sam build
         - sam package --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
         - sam deploy --template-file packaged.yaml --stack-name cognito-backend --capabilities CAPABILITY_IAM
