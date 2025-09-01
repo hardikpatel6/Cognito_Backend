@@ -1,9 +1,8 @@
 {
-  "type": "module",
   "name": "cognito-backend",
   "version": "1.0.0",
   "description": "Backend API with Cognito + AWS SAM + Amplify",
-  "main": "src/app.js",
+  "main": "src/lambda.js",
   "scripts": {
     "start": "node src/app.js",
     "build": "sam build",

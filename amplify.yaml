@@ -2,10 +2,24 @@ version: 1
 applications:
   - backend:
       phases:
+        preBuild:
+          commands:
+            - echo ">>> preBuild: install pip deps and SAM CLI (user install)"
+            - python3 -m pip install --user --upgrade pip
+            - python3 -m pip install --user aws-sam-cli awscli
+            - export PATH=$PATH:$HOME/.local/bin
+            - which sam || sam --version
+            - echo ">>> install node modules"
+            - npm ci
         build:
           commands:
-            - npm install
-            - sam build
+            - echo ">>> sam build"
+            - export PATH=$PATH:$HOME/.local/bin
+            - sam build --use-container || sam build
+            - echo ">>> sam package -> uploads artifacts to S3"
+            - sam package --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
+            - echo ">>> sam deploy"
+            - sam deploy --template-file packaged.yaml --stack-name $STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --no-confirm-changeset --no-fail-on-empty-changeset
       artifacts:
         baseDirectory: .
         files:
@@ -13,3 +27,4 @@ applications:
       cache:
         paths:
           - node_modules/**/*
+
