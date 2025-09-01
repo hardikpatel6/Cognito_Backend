@@ -35,7 +35,7 @@ env:
   variables:
     # set defaults here (you can override per-branch in Amplify Console)
     STACK_NAME: "cognito-backend-${AWS_BRANCH}"
-    DEPLOYMENT_BUCKET_NAME: "my-sam-artifacts-<unique>" # override in Amplify console
+    DEPLOYMENT_BUCKET_NAME: "aws-sam-cli-managed-default-samclisourcebucket-0cpzomrmp1uq" # override in Amplify console
     STAGE: "dev"
     # Add your OAuth / secrets in Amplify console (don't commit secrets)
     # GOOGLE_CLIENT_ID: ""
