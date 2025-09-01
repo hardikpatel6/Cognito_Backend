@@ -179,7 +179,6 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}-amplify-app"
       Repository: !Sub "https://github.com/${GitHubRepo}"
-      AccessToken: '{{resolve:secretsmanager:github-token:SecretString}}'
       OauthToken: !Ref GitHubToken
       EnvironmentVariables:
         - Name: USER_POOL_ID
