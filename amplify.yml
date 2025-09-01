@@ -3,6 +3,9 @@ backend:
   phases:
     preBuild:
       commands:
+        - git config advice.detachedHead false
+        - git fetch --unshallow
+        - git checkout main
         - echo "Installing SAM CLI..."
         - npm install -g aws-sam-cli
         - echo "Installing Node.js dependencies..."

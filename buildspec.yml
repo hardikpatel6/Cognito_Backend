@@ -2,7 +2,7 @@ version: 1
 backend:
   phases:
     preBuild:
-      commands:
+        - 
         - echo "Switching to branch main to avoid detached HEAD"
         - git fetch origin main
         - git checkout main
