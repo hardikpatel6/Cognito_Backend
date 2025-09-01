@@ -1,14 +1,27 @@
 version: 1
 backend:
   phases:
+    preBuild:
+      commands:
+        - echo "Installing SAM CLI..."
+        - npm install -g aws-sam-cli
+        - echo "Installing Node.js dependencies..."
+        - npm install
     build:
       commands:
-        - npm install -g aws-cdk # if using CDK
-        - pip install aws-sam-cli # if using SAM aaje aalho divas error ma kadhyo su lakhis hu log ma ?
+        - echo "Building SAM backend..."
         - sam build
-        - sam package --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
-        - sam deploy --template-file packaged.yaml --stack-name cognito-backend --capabilities CAPABILITY_IAM
+        - echo "Deploying SAM backend..."
+        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name cognito-backend-stack --capabilities CAPABILITY_NAMED_IAM
+frontend:
+  phases:
+    preBuild:
+      commands: []
+    build:
+      commands: []
 artifacts:
-  baseDirectory: .
+  baseDirectory: /
   files:
-    - packaged.yaml
+    - '**/*'
+cache:
+  paths: []
