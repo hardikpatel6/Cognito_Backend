@@ -185,7 +185,23 @@ Resources:
           Value: !Ref UserPoolId
         - Name: USER_POOL_CLIENT_ID
           Value: !Ref UserPoolClientId
-
+      BuildSpec: |
+        version: 1
+        applications:
+          - backend:
+              phases:
+                build:
+                  commands:
+                    - npm install
+                    - sam build
+                    - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name $STACK_NAME --capabilities CAPABILITY_IAM
+              artifacts:
+                baseDirectory: .
+                files:
+                  - template.yaml
+              cache:
+                paths:
+                  - node_modules/**/*
   AmplifyBranch:
     Type: AWS::Amplify::Branch
     Properties:
@@ -209,6 +225,15 @@ Resources:
       CodeUri: ./
       Policies:
         - AWSLambdaBasicExecutionRole
+        - Statement:
+            Effect: Allow
+            Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminInitiateAuth
+              - cognito-idp:AdminConfirmSignUp
+              - cognito-idp:SignUp
+              - cognito-idp:ConfirmSignUp
+            Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
         ApiGateway:
           Type: Api
