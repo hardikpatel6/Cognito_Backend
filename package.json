@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "cognito-backend",
   "version": "1.0.0",
   "description": "Backend API with Cognito + AWS SAM + Amplify",
