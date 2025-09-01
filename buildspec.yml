@@ -1,0 +1,14 @@
+version: 1
+backend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Switching to branch main to avoid detached HEAD"
+        - git fetch origin main
+        - git checkout main
+        - git pull origin main
+    build:
+      commands:
+        - npm install -g aws-sam-cli
+        - sam build
+        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name my-stack --s3-bucket $DEPLOYMENT_BUCKET_NAME --capabilities CAPABILITY_IAM
