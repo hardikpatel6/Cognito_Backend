@@ -226,6 +226,14 @@ Resources:
       - Name: USER_POOL_CLIENT_ID
         Value:
           Ref: UserPoolClientId
+  CognitoDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: cognito-deps
+      Description: Dependencies for Cognito backend
+      ContentUri: ..\..\layers
+      CompatibleRuntimes:
+      - nodejs18.x
   BackendApi:
     Type: AWS::Serverless::Function
     Properties:
@@ -235,6 +243,8 @@ Resources:
       MemorySize: 512
       Timeout: 10
       CodeUri: BackendApi
+      Layers:
+      - Ref: CognitoDependenciesLayer
       Environment:
         Variables:
           USER_POOL_ID:
