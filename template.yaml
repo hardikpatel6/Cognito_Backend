@@ -185,23 +185,6 @@ Resources:
           Value: !Ref UserPoolId
         - Name: USER_POOL_CLIENT_ID
           Value: !Ref UserPoolClientId
-      BuildSpec: |
-        version: 1
-        backend:
-          phases:
-            preBuild:
-              commands:
-                - npm install
-            build:
-              commands:
-                - echo "No build step required for Express backend"
-          artifacts:
-            baseDirectory: /
-            files:
-              - '**/*'
-          cache:
-            paths:
-              - node_modules/**/*
 
   AmplifyBranch:
     Type: AWS::Amplify::Branch
@@ -215,6 +198,24 @@ Resources:
         - Name: USER_POOL_CLIENT_ID
           Value: !Ref UserPoolClientId
 
+  BackendApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CognitoBackendApi
+      Handler: src/lambda.handler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Timeout: 10
+      CodeUri: ./
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+    
 Outputs:
   UserPoolId:
     Description: UserPool Id.
@@ -240,3 +241,6 @@ Outputs:
   AmplifyBranchUrl:
     Description: Deployed Branch URL
     Value: !Sub "https://${AmplifyBranch.BranchName}.${AmplifyApp.DefaultDomain}"
+  ApiUrl:
+    Description: "API Gateway endpoint"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

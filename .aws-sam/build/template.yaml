@@ -194,7 +194,6 @@ Resources:
         Fn::Sub: ${AWS::StackName}-amplify-app
       Repository:
         Fn::Sub: https://github.com/${GitHubRepo}
-      AccessToken: '{{resolve:secretsmanager:github-token:SecretString}}'
       OauthToken:
         Ref: GitHubToken
       EnvironmentVariables:
