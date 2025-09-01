@@ -203,6 +203,12 @@ Resources:
       - Name: USER_POOL_CLIENT_ID
         Value:
           Ref: UserPoolClientId
+      BuildSpec: "version: 1\napplications:\n  - backend:\n      phases:\n       \
+        \ build:\n          commands:\n            - npm install\n            - sam\
+        \ build\n            - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset\
+        \ --stack-name $STACK_NAME --capabilities CAPABILITY_IAM\n      artifacts:\n\
+        \        baseDirectory: .\n        files:\n          - template.yaml\n   \
+        \   cache:\n        paths:\n          - node_modules/**/*\n"
   AmplifyBranch:
     Type: AWS::Amplify::Branch
     Properties:
@@ -225,12 +231,28 @@ Resources:
     Properties:
       FunctionName: CognitoBackendApi
       Handler: src/lambda.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       MemorySize: 512
       Timeout: 10
       CodeUri: BackendApi
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
       Policies:
       - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:AdminCreateUser
+          - cognito-idp:AdminInitiateAuth
+          - cognito-idp:AdminConfirmSignUp
+          - cognito-idp:SignUp
+          - cognito-idp:ConfirmSignUp
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
         ApiGateway:
           Type: Api
