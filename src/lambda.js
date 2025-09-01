@@ -1,4 +1,5 @@
-const app = require("./app");
+const dotenv = require("dotenv");
+dotenv.config({ path: '../.env' });
 const AWS = require("aws-sdk");
 const Cognito = new AWS.CognitoIdentityServiceProvider();
 
