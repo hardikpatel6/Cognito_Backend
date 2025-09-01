@@ -1,22 +1,16 @@
 version: 1.0
 frontend:
   phases:
-    # Phase for installing dependencies
     pre_build:
       commands:
-        # Example for a Node.js-based frontend
         - npm install
-    # Phase for building the frontend
     build:
       commands:
         - npm run build
   artifacts:
-    # Directory where the built files will be located
     baseDirectory: 'build'
-    # List of files to be included in the artifacts
     files:
       - '**/*'
   cache:
     paths:
-      # Optional: Cache node modules to speed up future builds
       - 'node_modules/**/*'
