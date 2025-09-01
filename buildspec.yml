@@ -5,7 +5,6 @@ backend:
       commands:
         - echo "Configuring Git to suppress detached HEAD warnings"
         - git config advice.detachedHead false
-        - echo "Fetching full branch history"
         - git fetch --unshallow || true
         - git checkout main || true
         - git pull origin main || true
@@ -18,13 +17,12 @@ backend:
         - sam build
     postBuild:
       commands:
-        - echo "Deploying SAM stack"
+        - echo "Deploying SAM stack with Cognito environment variables"
         - sam deploy --no-confirm-changeset \
                      --no-fail-on-empty-changeset \
                      --stack-name amplify-backend \
                      --s3-bucket $DEPLOYMENT_BUCKET_NAME \
-                     --capabilities CAPABILITY_IAM
-artifacts:
-  files:
-    - '**/*'
+                     --capabilities CAPABILITY_IAM \
+                     --param
+
 
