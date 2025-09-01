@@ -231,7 +231,7 @@ Resources:
       Runtime: nodejs22.x
       MemorySize: 512
       Timeout: 10
-      CodeUri: ./
+      CodeUri: ./src
       Layers:
         - !Ref CognitoDependenciesLayer
       Environment:

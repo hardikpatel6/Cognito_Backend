@@ -12,7 +12,7 @@ backend:
         - echo "Building SAM backend..."
         - sam build
         - echo "Deploying SAM backend..."
-        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name cognito-backend-stack --capabilities CAPABILITY_NAMED_IAM
+        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name amplify-backend-project-stack --capabilities CAPABILITY_NAMED_IAM
 frontend:
   phases:
     preBuild:
