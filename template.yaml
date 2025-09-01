@@ -219,7 +219,7 @@ Resources:
     Properties:
       FunctionName: CognitoBackendApi
       Handler: src/lambda.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       MemorySize: 512
       Timeout: 10
       CodeUri: ./
