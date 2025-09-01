@@ -223,6 +223,10 @@ Resources:
       MemorySize: 512
       Timeout: 10
       CodeUri: ./
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref MyUserPool
+          USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
