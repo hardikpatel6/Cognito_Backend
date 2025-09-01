@@ -1,0 +1,15 @@
+version: 1
+applications:
+  - backend:
+      phases:
+        build:
+          commands:
+            - npm install
+            - sam build
+      artifacts:
+        baseDirectory: .
+        files:
+          - template.yaml
+      cache:
+        paths:
+          - node_modules/**/*

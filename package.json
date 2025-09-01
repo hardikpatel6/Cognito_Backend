@@ -1,4 +1,13 @@
 {
+  "name": "cognito-backend",
+  "version": "1.0.0",
+  "description": "Backend API with Cognito + AWS SAM + Amplify",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "build": "sam build",
+    "deploy": "sam deploy --guided"
+  },
   "dependencies": {
     "amazon-cognito-identity-js": "^6.3.15",
     "aws-sdk": "^2.1692.0",
@@ -10,3 +19,4 @@
     "serverless-http": "^4.0.0"
   }
 }
+
