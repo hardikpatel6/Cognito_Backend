@@ -1,0 +1,18 @@
+version: 1
+applications:
+  - appRoot: .
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: build   # change if using Next.js, Angular, etc.
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*

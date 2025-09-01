@@ -13,6 +13,23 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Google OAuth Client Secret.
+  GitHubRepo:
+    Type: String
+    Description: GitHub repository
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: Branch to connect
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: Personal Access Token for GitHub
+  UserPoolId:
+    Type: String
+    Description: Cognito User Pool ID
+  UserPoolClientId:
+    Type: String
+    Description: Cognito User Pool Client ID
   FrontendUrl:
     Type: String
     Default: http://localhost:4000
@@ -170,6 +187,43 @@ Resources:
           Fn::GetAtt:
           - UnauthenticatedRole
           - Arn
+  AmplifyApp:
+    Type: AWS::Amplify::App
+    Properties:
+      Name:
+        Fn::Sub: ${AWS::StackName}-amplify-app
+      Repository:
+        Fn::Sub: https://github.com/${GitHubRepo}
+      OauthToken:
+        Ref: GitHubToken
+      EnvironmentVariables:
+      - Name: USER_POOL_ID
+        Value:
+          Ref: UserPoolId
+      - Name: USER_POOL_CLIENT_ID
+        Value:
+          Ref: UserPoolClientId
+      BuildSpec: "version: 1\nbackend:\n  phases:\n    preBuild:\n      commands:\n\
+        \        - npm install\n    build:\n      commands:\n        - echo \"No build\
+        \ step required for Express backend\"\n  artifacts:\n    baseDirectory: /\n\
+        \    files:\n      - '**/*'\n  cache:\n    paths:\n      - node_modules/**/*\n"
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      AppId:
+        Fn::GetAtt:
+        - AmplifyApp
+        - AppId
+      BranchName:
+        Ref: GitHubBranch
+      EnableAutoBuild: true
+      EnvironmentVariables:
+      - Name: USER_POOL_ID
+        Value:
+          Ref: UserPoolId
+      - Name: USER_POOL_CLIENT_ID
+        Value:
+          Ref: UserPoolClientId
 Outputs:
   UserPoolId:
     Description: UserPool Id.
@@ -195,3 +249,19 @@ Outputs:
       Fn::GetAtt:
       - UnauthenticatedRole
       - Arn
+  AmplifyAppId:
+    Description: Amplify App ID
+    Value:
+      Fn::GetAtt:
+      - AmplifyApp
+      - AppId
+  AmplifyAppDefaultDomain:
+    Description: Amplify App Default Domain
+    Value:
+      Fn::GetAtt:
+      - AmplifyApp
+      - DefaultDomain
+  AmplifyBranchUrl:
+    Description: Deployed Branch URL
+    Value:
+      Fn::Sub: https://${AmplifyBranch.BranchName}.${AmplifyApp.DefaultDomain}
