@@ -221,7 +221,7 @@ Resources:
       Description: "Dependencies for Cognito backend"
       ContentUri: layers/
       CompatibleRuntimes:
-        - nodejs18.x
+        - nodejs22.x
 
   BackendApi:
     Type: AWS::Serverless::Function

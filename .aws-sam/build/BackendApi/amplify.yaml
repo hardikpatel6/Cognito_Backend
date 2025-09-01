@@ -1,15 +1,86 @@
+# version: 1
+# applications:
+#   - backend:
+#       phases:
+#         preBuild:
+#           commands:
+#             - echo ">>> preBuild: install pip deps and SAM CLI (user install)"
+#             - python3 -m pip install --user --upgrade pip
+#             - python3 -m pip install --user aws-sam-cli awscli
+#             - export PATH=$PATH:$HOME/.local/bin
+#             - which sam || sam --version
+#             - echo ">>> install node modules"
+#             - npm ci
+#         build:
+#           commands:
+#             - echo ">>> sam build"
+#             - export PATH=$PATH:$HOME/.local/bin
+#             - sam build --use-container || sam build
+#             - echo ">>> sam package -> uploads artifacts to S3"
+#             - sam package --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
+#             - echo ">>> sam deploy"
+#             - sam deploy --template-file packaged.yaml --stack-name $STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --no-confirm-changeset --no-fail-on-empty-changeset
+#       artifacts:
+#         baseDirectory: .
+#         files:
+#           - template.yaml
+#       cache:
+#         paths:
+#           - node_modules/**/*
+
+
+
 version: 1
-applications:
-  - backend:
-      phases:
-        build:
-          commands:
-            - npm install
-            - sam build
-      artifacts:
-        baseDirectory: .
-        files:
-          - template.yaml
-      cache:
-        paths:
-          - node_modules/**/*
+env:
+  variables:
+    # set defaults here (you can override per-branch in Amplify Console)
+    STACK_NAME: "cognito-backend-${AWS_BRANCH}"
+    DEPLOYMENT_BUCKET_NAME: "my-sam-artifacts-<unique>" # override in Amplify console
+    STAGE: "dev"
+    # Add your OAuth / secrets in Amplify console (don't commit secrets)
+    # GOOGLE_CLIENT_ID: ""
+    # GOOGLE_CLIENT_SECRET: ""
+backend:
+  phases:
+    preBuild:
+      commands:
+        - echo "----- preBuild: install sam cli and node deps -----"
+        # Install SAM CLI for the build user (pip is usually available)
+        - python3 -m pip install --upgrade --user aws-sam-cli
+        # ensure local pip user bin is on PATH
+        - export PATH=$PATH:~/.local/bin
+        - sam --version || (echo "SAM not found"; exit 1)
+        # Install root deps (if any)
+        - if [ -f package.json ]; then npm ci; fi
+        # Install package deps inside every subfolder that contains package.json
+        - |
+          for d in $(find . -maxdepth 3 -type f -name package.json ! -path "./node_modules/*" ! -path "./.aws-sam/*" | sed 's|/package.json||'); do
+            echo "Installing deps in $d"
+            (cd "$d" && npm ci) || (echo "npm ci failed in $d"; exit 1)
+          done
+    build:
+      commands:
+        - echo "----- build: sam build -----"
+        # Build with SAM (do not use --use-container on Amplify)
+        - sam build --template template.yaml --build-dir .aws-sam/build
+    postBuild:
+      commands:
+        - echo "----- postBuild: package & deploy -----"
+        # Package uploads artifacts to S3 and produces packaged.yaml
+        - sam package --template-file .aws-sam/build/template.yaml --s3-bucket $DEPLOYMENT_BUCKET_NAME --output-template-file packaged.yaml
+        # Deploy: include CAPABILITY_NAMED_IAM if your template creates named IAM roles.
+        - sam deploy --template-file packaged.yaml --stack-name $STACK_NAME --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides Stage=$STAGE GoogleClientId=$GOOGLE_CLIENT_ID GoogleClientSecret=$GOOGLE_CLIENT_SECRET || true
+frontend:
+  phases:
+    build:
+      commands:
+        - echo "No frontend build (backend-only repo)."
+artifacts:
+  baseDirectory: /
+  files:
+    - packaged.yaml
+cache:
+  paths:
+    - node_modules/**/*
+
+
