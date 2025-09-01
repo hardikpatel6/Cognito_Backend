@@ -1,59 +1,14 @@
 version: 1
-env:
-  variables:
-    # set defaults here (you can override per-branch in Amplify Console)
-    STACK_NAME: "cognito-backend-${AWS_BRANCH}"
-    DEPLOYMENT_BUCKET_NAME: "aws-sam-cli-managed-default-samclisourcebucket-0cpzomrmp1uq" # override in Amplify console
-    STAGE: "dev"
-    # Add your OAuth / secrets in Amplify console (don't commit secrets)
-    # GOOGLE_CLIENT_ID: ""
-    # GOOGLE_CLIENT_SECRET: ""
 backend:
   phases:
-    preBuild:
-      commands:
-        - echo "----- preBuild: install sam cli and node deps -----"
-        # Install SAM CLI for the build user (pip is usually available)
-        - python3 -m pip install --upgrade --user aws-sam-cli
-        # ensure local pip user bin is on PATH
-        - export PATH=$PATH:~/.local/bin
-        - sam --version || (echo "SAM not found"; exit 1)
-        # Install root deps (if any)
-        - if [ -f package.json ]; then npm ci; fi
-        # Install package deps inside every subfolder that contains package.json
-        - |
-          for d in $(find . -maxdepth 3 -type f -name package.json ! -path "./node_modules/*" ! -path "./.aws-sam/*" | sed 's|/package.json||'); do
-            echo "Installing deps in $d"
-            (cd "$d" && npm ci) || (echo "npm ci failed in $d"; exit 1)
-          done
     build:
       commands:
-        - echo "----- build: sam build -----"
-        # Build with SAM (do not use --use-container on Amplify)
-        - sam build --template template.yaml --build-dir .aws-sam/build
-    postBuild:
-      commands:
-        - echo "----- postBuild: package & deploy -----"
-        # Package uploads artifacts to S3 and produces packaged.yaml
-        - sam package --template-file .aws-sam/build/template.yaml --s3-bucket $DEPLOYMENT_BUCKET_NAME --output-template-file packaged.yaml
-        # Deploy: include CAPABILITY_NAMED_IAM if your template creates named IAM roles.
-        - sam deploy --template-file packaged.yaml --stack-name $STACK_NAME --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides Stage=$STAGE GoogleClientId=$GOOGLE_CLIENT_ID GoogleClientSecret=$GOOGLE_CLIENT_SECRET || true
-  # ADD THIS ARTIFACTS SECTION TO THE BACKEND
-  artifacts:
-    baseDirectory: .
-    files:
-      - packaged.yaml
-      - template.yaml
-      - .aws-sam/build/**/*
-frontend:
-  phases:
-    build:
-      commands:
-        - echo "No frontend build (backend-only repo)."
-  artifacts:
-    baseDirectory: /
-    files:
-      - packaged.yaml
-cache:
-  paths:
-    - node_modules/**/*
+        - npm install -g aws-cdk # if using CDK
+        - pip install aws-sam-cli # if using SAM
+        - sam build
+        - sam package --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
+        - sam deploy --template-file packaged.yaml --stack-name cognito-backend --capabilities CAPABILITY_IAM
+artifacts:
+  baseDirectory: .
+  files:
+    - packaged.yaml
