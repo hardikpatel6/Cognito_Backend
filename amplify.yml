@@ -8,7 +8,7 @@ frontend:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: build   # change to .next, dist, or your frontend output dir
+    baseDirectory: build   # 🔹 change if using Next.js (.next) or Vue (dist)
     files:
       - '**/*'
   cache:
@@ -18,8 +18,8 @@ backend:
   phases:
     preBuild:
       commands:
-        - npm install -g aws-sam-cli
-        - cd auth
+        - sam --version   # just to confirm SAM is available in logs
+        - cd auth         # 🔹 remove if your SAM template is at repo root
         - npm install
         - cd ..
     build:
@@ -34,3 +34,4 @@ backend:
     baseDirectory: .
     files:
       - '**/*'
+
