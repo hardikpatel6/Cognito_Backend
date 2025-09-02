@@ -14,7 +14,8 @@ exports.signupHandler = async (event) => {
       }),
     };
   } catch (err) {
-    return { statusCode: 400, body: JSON.stringify({ error: err.message }) };
+    console
+    return { statusCode: 400, body: JSON.stringify({ error: err.message }) ,};
   }
 };
 

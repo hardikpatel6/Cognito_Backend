@@ -1,8 +1,10 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 global.fetch = require("node-fetch");
 
-const userPoolId =`ap-south-1_3dcWs4KFM`;
-const clientId = `5qse1piq58gpp1afnr2u8443ck`;
+const userPoolId = process.env.USER_POOL_ID;
+const clientId = process.env.USER_POOL_CLIENT_ID;
 
 console.log(userPoolId, clientId);
 // Optional: Add a check to see if the values were loaded

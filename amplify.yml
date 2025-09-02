@@ -1,30 +1,36 @@
 version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: build   # change to .next, dist, or your frontend output dir
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
 backend:
   phases:
     preBuild:
       commands:
-        - git config advice.detachedHead false
-        - git fetch --unshallow
-        - git checkout main
-        - echo "Installing SAM CLI..."
         - npm install -g aws-sam-cli
-        - echo "Installing Node.js dependencies..."
+        - cd auth
         - npm install
+        - cd ..
     build:
       commands:
-        - echo "Building SAM backend..."
         - sam build
-        - echo "Deploying SAM backend..."
-        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name amplify-backend-project-stack --capabilities CAPABILITY_NAMED_IAM
-frontend:
-  phases:
-    preBuild:
-      commands: []
-    build:
-      commands: []
-artifacts:
-  baseDirectory: /
-  files:
-    - '**/*'
-cache:
-  paths: []
+        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset \
+          --stack-name amplify-auth-backend \
+          --s3-bucket ${DEPLOYMENT_BUCKET_NAME} \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+          --parameter-overrides Stage=${STAGE}
+  artifacts:
+    baseDirectory: .
+    files:
+      - '**/*'
