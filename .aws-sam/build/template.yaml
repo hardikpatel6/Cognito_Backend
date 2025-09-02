@@ -234,15 +234,14 @@ Resources:
       ContentUri: ..\..\layers
       CompatibleRuntimes:
       - nodejs22.x
-  BackendApi:
+  SignUpFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: CognitoBackendApi
-      Handler: src/lambda.handler
+      Handler: lambda.signupHandler
       Runtime: nodejs22.x
       MemorySize: 512
-      Timeout: 10
-      CodeUri: BackendApi
+      Timeout: 15
+      CodeUri: SignUpFunction
       Layers:
       - Ref: CognitoDependenciesLayer
       Environment:
@@ -264,13 +263,85 @@ Resources:
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
-        ApiGateway:
+        SignupApi:
           Type: Api
           Properties:
-            Path: /{proxy+}
-            Method: ANY
+            Path: /auth/signup
+            Method: post
     Metadata:
-      SamResourceId: BackendApi
+      SamResourceId: SignUpFunction
+  ConfirmFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.confirmHandler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: ConfirmFunction
+      Layers:
+      - Ref: CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:AdminCreateUser
+          - cognito-idp:AdminInitiateAuth
+          - cognito-idp:AdminConfirmSignUp
+          - cognito-idp:SignUp
+          - cognito-idp:ConfirmSignUp
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Events:
+        ConfirmApi:
+          Type: Api
+          Properties:
+            Path: /auth/confirm
+            Method: post
+    Metadata:
+      SamResourceId: ConfirmFunction
+  SigninFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.signinHandler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: SigninFunction
+      Layers:
+      - Ref: CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:AdminCreateUser
+          - cognito-idp:AdminInitiateAuth
+          - cognito-idp:AdminConfirmSignUp
+          - cognito-idp:SignUp
+          - cognito-idp:ConfirmSignUp
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Events:
+        SigninApi:
+          Type: Api
+          Properties:
+            Path: /auth/signin
+            Method: post
+    Metadata:
+      SamResourceId: SigninFunction
 Outputs:
   UserPoolId:
     Description: UserPool Id.

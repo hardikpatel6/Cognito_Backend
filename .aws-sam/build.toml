@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "src/lambda.handler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["BackendApi"]
+functions = ["SignUpFunction", "ConfirmFunction", "SigninFunction"]
 
 [layer_build_definitions]
