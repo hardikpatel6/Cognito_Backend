@@ -27,7 +27,7 @@ backend:
           --stack-name sam-app \
           --s3-bucket ${DEPLOYMENT_BUCKET_NAME} \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-          --parameter-overrides Stage=${STAGE}
+          --parameter-overrides Stage=${STAGE} GoogleClientId=${GoogleClientId} GoogleClientSecret=${GoogleClientSecret}
   artifacts:
     baseDirectory: .
     files:
