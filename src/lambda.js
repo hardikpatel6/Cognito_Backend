@@ -1,108 +1,55 @@
-const dotenv = require("dotenv");
-dotenv.config({ path: '../.env' });
-const AWS = require("aws-sdk");
-const Cognito = new AWS.CognitoIdentityServiceProvider();
+const { signInUser, signUpUser, confirmUser } = require("./utils/cognito");
 
-const USER_POOL_ID = process.env.USER_POOL_ID;
-const CLIENT_ID = process.env.CLIENT_ID;
+// ✅ Signup (Lambda)
+exports.signupHandler = async (event) => {
+  try {
+    const { email, password, name } = JSON.parse(event.body);
+    const result = await signUpUser(email, password, name);
 
-exports.handler = async (event) => {
-    const { httpMethod, path } = event;
-
-    switch (httpMethod) {
-        case 'POST':
-            if (path === '/signup') {
-                return await signup(event);
-            } else if (path === '/signin') {
-                return await signin(event);
-            } else if (path === '/confirm') {
-                return await confirm(event);
-            } else {
-                return {
-                    statusCode: 404,
-                    body: JSON.stringify({ message: 'Not Found' }),
-                };
-            }
-        default:
-            return {
-                statusCode: 405,
-                body: JSON.stringify({ message: 'Method Not Allowed' }),
-            };
-    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "✅ Signup successful. Please confirm your email.",
+        result,
+      }),
+    };
+  } catch (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.message }) };
+  }
 };
 
-const signup = async (event) => {
-    const body = JSON.parse(event.body);
+// ✅ Confirm (Lambda)
+exports.confirmHandler = async (event) => {
+  try {
+    const { email, code } = JSON.parse(event.body);
+    const result = await confirmUser(email, code);
 
-    try {
-        const params = {
-            ClientId: CLIENT_ID,
-            Username: body.email,
-            Password: body.password,
-            UserAttributes: [
-                { Name: "email", Value: body.email }
-            ]
-        };
-        await Cognito.signUp(params).promise();
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "Signup successful! Check email for confirmation code." }),
-        };
-    } catch (err) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: err.message }),
-        };
-    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "✅ User confirmed successfully",
+        result,
+      }),
+    };
+  } catch (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.message }) };
+  }
 };
 
-const signin = async (event) => {
-    const body = JSON.parse(event.body);
+// ✅ Signin (Lambda)
+exports.signinHandler = async (event) => {
+  try {
+    const { email, password } = JSON.parse(event.body);
+    const token = await signInUser(email, password);
 
-    try {
-        const params = {
-            AuthFlow: "USER_PASSWORD_AUTH",
-            ClientId: CLIENT_ID,
-            AuthParameters: {
-                USERNAME: body.email,
-                PASSWORD: body.password
-            }
-        };
-        const data = await Cognito.initiateAuth(params).promise();
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "Signin successful!", token: data.AuthenticationResult.IdToken }),
-        };
-    } catch (err) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: err.message }),
-        };
-    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "✅ Sign in successful",
+        token,
+      }),
+    };
+  } catch (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.message }) };
+  }
 };
-
-const confirm = async (event) => {
-    const body = JSON.parse(event.body);
-
-    try {
-        const params = {
-            ClientId: CLIENT_ID,
-            Username: body.email,
-            ConfirmationCode: body.code
-        };
-        await Cognito.confirmSignUp(params).promise();
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "User confirmed successfully!" }),
-        };
-    } catch (err) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: err.message }),
-        };
-    }
-};
-
