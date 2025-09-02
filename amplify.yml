@@ -23,7 +23,7 @@ backend:
     build:
       commands:
         - sam build
-        - am deploy --no-confirm-changeset --no-fail-on-empty-changeset \
+        - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset \
           --stack-name sam-app \
           --s3-bucket ${DEPLOYMENT_BUCKET_NAME} \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
