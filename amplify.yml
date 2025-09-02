@@ -19,9 +19,7 @@ backend:
     preBuild:
       commands:
         - sam --version   # just to confirm SAM is available in logs
-        - cd auth         # 🔹 remove if your SAM template is at repo root
         - npm install
-        - cd ..
     build:
       commands:
         - sam build
