@@ -9,10 +9,10 @@ exports.signupHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // allow all origins
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
-      },
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    },
       body: JSON.stringify({
         message: "✅ Signup successful. Please confirm your email.",
         result,
@@ -33,10 +33,10 @@ exports.confirmHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // allow all origins
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
-      },
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    },
       body: JSON.stringify({
         message: "✅ User confirmed successfully",
         result,
@@ -56,10 +56,10 @@ exports.signinHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // allow all origins
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
-      },
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    },
       body: JSON.stringify({
         message: "✅ Sign in successful",
         token,
@@ -77,10 +77,10 @@ exports.forgotPasswordHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // allow all origins
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
-      },
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    },
       body: JSON.stringify({
         message: "✅ If a user with that email exists, a password reset code has been sent.",
         result,
@@ -100,10 +100,10 @@ exports.confirmNewPasswordHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // allow all origins
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
-      },
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    },
       body: JSON.stringify({
         message: "✅ Password successfully changed",
         redirectUrl: "/signin",
@@ -136,10 +136,10 @@ exports.signoutHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // allow all origins
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
-      },
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+    },
       body: JSON.stringify({
         message,
       }),
