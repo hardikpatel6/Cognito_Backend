@@ -106,7 +106,7 @@ exports.signoutHandler = async (event) => {
       };
     }
 
-    const message = await signOutUser(accessToken,email);
+    const message = await signOutUser(email);
 
     return {
       statusCode: 200,

@@ -64,7 +64,7 @@ router.post("/signout", async (req, res) => {
     if (!accessToken) {
       return res.status(401).json({ error: "Access token is required" });
     }
-    const result = await signOutUser(accessToken,email);
+    const result = await signOutUser(email);
     res.json({ message: "✅ User successfully signed out of all devices.", result });
   } catch (err) {
     res.status(400).json({ error: err.message });
