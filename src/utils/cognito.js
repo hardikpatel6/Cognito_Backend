@@ -62,7 +62,7 @@ async function signInUser(email, password) {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        resolve(result.getIdToken().getJwtToken());
+        resolve(result.getAccessToken().getJwtToken());
       },
       onFailure: (err) => {
         reject(err);
