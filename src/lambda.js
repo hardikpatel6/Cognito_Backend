@@ -1,4 +1,4 @@
-const { signInUser, signUpUser, confirmUser,forgotPassword,confirmNewPassword,signOutUser } = require("./utils/cognito");
+const { signInUser, signUpUser, confirmUser, forgotPassword, confirmNewPassword, signOutUser } = require("./utils/cognito");
 
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
@@ -8,6 +8,11 @@ exports.signupHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  // allow all origins
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+      },
       body: JSON.stringify({
         message: "✅ Signup successful. Please confirm your email.",
         result,
@@ -15,7 +20,7 @@ exports.signupHandler = async (event) => {
     };
   } catch (err) {
     console
-    return { statusCode: 400, body: JSON.stringify({ error: err.message }) ,};
+    return { statusCode: 400, body: JSON.stringify({ error: err.message }), };
   }
 };
 
@@ -27,6 +32,11 @@ exports.confirmHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  // allow all origins
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+      },
       body: JSON.stringify({
         message: "✅ User confirmed successfully",
         result,
@@ -45,6 +55,11 @@ exports.signinHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  // allow all origins
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+      },
       body: JSON.stringify({
         message: "✅ Sign in successful",
         token,
@@ -61,6 +76,11 @@ exports.forgotPasswordHandler = async (event) => {
     const result = await forgotPassword(email);
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  // allow all origins
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+      },
       body: JSON.stringify({
         message: "✅ If a user with that email exists, a password reset code has been sent.",
         result,
@@ -79,6 +99,11 @@ exports.confirmNewPasswordHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  // allow all origins
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+      },
       body: JSON.stringify({
         message: "✅ Password successfully changed",
         redirectUrl: "/signin",
@@ -97,7 +122,7 @@ exports.confirmNewPasswordHandler = async (event) => {
 exports.signoutHandler = async (event) => {
   try {
     const accessToken = event.headers.Authorization.split(' ')[1];
-    const {email} = JSON.parse(event.body);
+    const { email } = JSON.parse(event.body);
 
     if (!accessToken) {
       return {
@@ -110,6 +135,11 @@ exports.signoutHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  // allow all origins
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE",
+      },
       body: JSON.stringify({
         message,
       }),
