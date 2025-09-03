@@ -71,4 +71,48 @@ async function signInUser(email, password) {
   });
 }
 
-module.exports = { signUpUser, confirmUser, signInUser };
+/**
+ * Initiates the forgot password process for a user.
+ * @param {string} email - The email of the user to reset the password for.
+ * @returns {Promise<string>} A promise that resolves with a success message or rejects with an error.
+ */
+async function forgotPassword(email) {
+  return new Promise((resolve, reject) => {
+    const userData = {
+      Username: email,
+      Pool: userPool
+    };
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    cognitoUser.forgotPassword({
+      onSuccess: function (data) {
+        console.log('CodeDeliveryData: ' + data);
+        resolve('A password reset code has been sent to your email.');
+      },
+      onFailure: function (err) {
+        console.error(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+async function confirmNewPassword(email, newPassword, verificationCode) {
+  return new Promise((resolve, reject) => {
+    const userData = {
+      Username: email,
+      Pool: userPool
+    };
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    cognitoUser.confirmPassword(verificationCode, newPassword, {
+      onSuccess: () => {
+        resolve("Password successfully changed.");
+      },
+      onFailure: (err) => {
+        reject(err);
+      },
+    });
+  });
+}
+module.exports = { signUpUser, confirmUser, signInUser ,forgotPassword,confirmNewPassword};

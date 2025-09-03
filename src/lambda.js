@@ -1,4 +1,4 @@
-const { signInUser, signUpUser, confirmUser } = require("./utils/cognito");
+const { signInUser, signUpUser, confirmUser,forgotPassword,confirmNewPassword } = require("./utils/cognito");
 
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
@@ -52,5 +52,44 @@ exports.signinHandler = async (event) => {
     };
   } catch (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.message }) };
+  }
+};
+
+exports.forgotPasswordHandler = async (event) => {
+  try {
+    const { email } = JSON.parse(event.body);
+    const result = await forgotPassword(email);
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "✅ If a user with that email exists, a password reset code has been sent.",
+        result,
+      }),
+    };
+  } catch (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.message }) };
+  }
+};
+
+exports.confirmNewPasswordHandler = async (event) => {
+  try {
+    const { email, password, verificationCode } = JSON.parse(event.body);
+
+    const result = await confirmNewPassword(email, password, verificationCode);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "✅ Password successfully changed",
+        redirectUrl: "/signin",
+      }),
+    };
+  } catch (err) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error: err.message
+      }),
+    };
   }
 };
