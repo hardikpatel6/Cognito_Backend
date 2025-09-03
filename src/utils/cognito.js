@@ -124,7 +124,7 @@ async function signOutUser(accessToken,email) {
     const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
     cognitoUser.globalSignOut(accessToken,{
       onSuccess: () => {
-        resolve("Password successfully changed.");
+        resolve("User Logout successfully ");
       },
       onFailure: (err) => {
         reject(err);
