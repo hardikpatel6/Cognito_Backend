@@ -115,14 +115,17 @@ async function confirmNewPassword(email, newPassword, verificationCode) {
     });
   });
 }
-
-async function signOutUser(accessToken) {
+async function signOutUser(accessToken,email) {
   return new Promise((resolve, reject) => {
+    const userData = {
+      Username: email,
+      Pool: userPool
+    };
     const params = {
       AccessToken: accessToken,
     };
-
-    cognito.globalSignOut(params, (err, data) => {
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+    cognitoUser.globalSignOut(params, (err, data) => {
       if (err) {
         console.error("Error signing out:", err);
         reject(err);

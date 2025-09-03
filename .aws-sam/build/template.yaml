@@ -355,7 +355,7 @@ Resources:
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
-        SigninApi:
+        ForgotPasswordApi:
           Type: Api
           Properties:
             Path: /auth/forgot-password
@@ -387,13 +387,45 @@ Resources:
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
-        SigninApi:
+        ConfirmNewPasswordApi:
           Type: Api
           Properties:
             Path: /auth/confirm-new-password
             Method: post
     Metadata:
       SamResourceId: ConfirmNewPasswordFunction
+  SignOutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.signoutHandler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: SignOutFunction
+      Layers:
+      - Ref: CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:GlobalSignOut
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Events:
+        SignOutApi:
+          Type: Api
+          Properties:
+            Path: /auth/signout
+            Method: post
+    Metadata:
+      SamResourceId: SignOutFunction
 Outputs:
   UserPoolId:
     Description: UserPool Id.

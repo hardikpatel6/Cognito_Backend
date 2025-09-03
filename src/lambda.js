@@ -97,6 +97,7 @@ exports.confirmNewPasswordHandler = async (event) => {
 exports.signoutHandler = async (event) => {
   try {
     const accessToken = event.headers.Authorization.split(' ')[1];
+    const {email} = JSON.parse(event.body);
 
     if (!accessToken) {
       return {
@@ -105,7 +106,7 @@ exports.signoutHandler = async (event) => {
       };
     }
 
-    const message = await signOutUser(accessToken);
+    const message = await signOutUser(accessToken,email);
 
     return {
       statusCode: 200,

@@ -58,13 +58,16 @@ router.post("/confirm-new-password", async (req, res) => {
 });
 
 router.post("/signout", async (req, res) => {
-  const { accessToken } = req.body; 
+  const {email} = req.body;
+  const accessToken = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <
   try {
-    const result = await signOutUser(accessToken);
-    res.json({ message: "✅ Sign out successful", result });
-  }
-  catch (err) {
+    if (!accessToken) {
+      return res.status(401).json({ error: "Access token is required" });
+    }
+    const result = await signOutUser(accessToken,email);
+    res.json({ message: "✅ User successfully signed out of all devices.", result });
+  } catch (err) {
     res.status(400).json({ error: err.message });
-  }     
+  }
 });
 module.exports = router;
