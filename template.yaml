@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Cognito UserPool + AppClient + IdentityPool with Roles
-
+ 
 Parameters:
   Stage:
     Type: String
@@ -36,6 +36,12 @@ Parameters:
     Default: 'http://localhost:4000'
     Description: Frontend URL for redirects.
 
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowOrigin: "'http://localhost:4000/'" 
 Resources:
   MyUserPool:
     Type: AWS::Cognito::UserPool
@@ -226,10 +232,6 @@ Resources:
   SignUpFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Cors:
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'http://localhost:4000/'"
       Handler:  lambda.signupHandler
       Runtime: nodejs22.x
       MemorySize: 512
@@ -258,10 +260,6 @@ Resources:
   ConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Cors:
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'http://localhost:4000/'"
       Handler:  lambda.confirmHandler
       Runtime: nodejs22.x
       MemorySize: 512
@@ -288,10 +286,6 @@ Resources:
             Method: post
 
   SigninFunction:
-    Cors:
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'http://localhost:4000/'"
     Type: AWS::Serverless::Function
     Properties:
       Handler:  lambda.signinHandler
@@ -320,10 +314,6 @@ Resources:
             Method: post
 
   ForgotPasswordFunction:
-    Cors:
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'http://localhost:4000/'"
     Type: AWS::Serverless::Function
     Properties:
       Handler:  lambda.forgotPasswordHandler
@@ -352,10 +342,6 @@ Resources:
             Method: post
 
   ConfirmNewPasswordFunction:
-    Cors:
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'http://localhost:4000/'"
     Type: AWS::Serverless::Function
     Properties:
       Handler:  lambda.confirmNewPasswordHandler
@@ -383,10 +369,6 @@ Resources:
             Path: /auth/confirm-new-password
             Method: post
   SignOutFunction:
-    Cors:
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'http://localhost:4000/'"
     Type: AWS::Serverless::Function
     Properties:
       Handler:  lambda.signoutHandler
