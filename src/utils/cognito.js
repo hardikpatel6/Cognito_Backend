@@ -121,19 +121,15 @@ async function signOutUser(accessToken,email) {
       Username: email,
       Pool: userPool
     };
-    const params = {
-      AccessToken: accessToken,
-    };
     const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-    cognitoUser.globalSignOut(params, (err, data) => {
-      if (err) {
-        console.error("Error signing out:", err);
+    cognitoUser.globalSignOut(accessToken,{
+      onSuccess: () => {
+        resolve("Password successfully changed.");
+      },
+      onFailure: (err) => {
         reject(err);
-      } else {
-        console.log("Global sign out successful:", data);
-        resolve("User successfully signed out of all devices.");
-      }
-    });
+      },
+    })
   });
 }
 module.exports = { signUpUser, confirmUser, signInUser ,forgotPassword,confirmNewPassword,signOutUser};
