@@ -41,7 +41,7 @@ Globals:
     Cors:
       AllowMethods: "'POST,OPTIONS'"
       AllowHeaders: "'Content-Type,Authorization'"
-      AllowOrigin: "'http://localhost:4000/'" 
+      AllowOrigin: "'http://localhost:4000'" 
 Resources:
   MyUserPool:
     Type: AWS::Cognito::UserPool
