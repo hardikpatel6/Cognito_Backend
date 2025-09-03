@@ -115,21 +115,22 @@ async function confirmNewPassword(email, newPassword, verificationCode) {
     });
   });
 }
-async function signOutUser(accessToken,email) {
+async function signOutUser(email) {
   return new Promise((resolve, reject) => {
     const userData = {
       Username: email,
       Pool: userPool
     };
     const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-    cognitoUser.globalSignOut(accessToken,{
+
+    cognitoUser.globalSignOut({
       onSuccess: () => {
-        resolve("User Logout successfully ");
+        resolve("✅ User logged out successfully");
       },
       onFailure: (err) => {
         reject(err);
       },
-    })
+    });
   });
 }
 module.exports = { signUpUser, confirmUser, signInUser ,forgotPassword,confirmNewPassword,signOutUser};
