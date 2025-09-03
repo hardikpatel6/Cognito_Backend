@@ -115,4 +115,22 @@ async function confirmNewPassword(email, newPassword, verificationCode) {
     });
   });
 }
-module.exports = { signUpUser, confirmUser, signInUser ,forgotPassword,confirmNewPassword};
+
+async function signOutUser(accessToken) {
+  return new Promise((resolve, reject) => {
+    const params = {
+      AccessToken: accessToken,
+    };
+
+    cognito.globalSignOut(params, (err, data) => {
+      if (err) {
+        console.error("Error signing out:", err);
+        reject(err);
+      } else {
+        console.log("Global sign out successful:", data);
+        resolve("User successfully signed out of all devices.");
+      }
+    });
+  });
+}
+module.exports = { signUpUser, confirmUser, signInUser ,forgotPassword,confirmNewPassword,signOutUser};

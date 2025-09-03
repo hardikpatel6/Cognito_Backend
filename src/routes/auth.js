@@ -1,7 +1,7 @@
 const express = require("express");
 const axios = require("axios"); 
 const router = express.Router();
-const { signInUser, signUpUser, confirmUser,forgotPassword,confirmNewPassword } = require("../utils/cognito.js");
+const { signInUser, signUpUser, confirmUser,forgotPassword,confirmNewPassword,signOutUser } = require("../utils/cognito.js");
 
 // ✅ Signup
 router.post("/signup", async (req, res) => {
@@ -57,4 +57,14 @@ router.post("/confirm-new-password", async (req, res) => {
   }
 });
 
+router.post("/signout", async (req, res) => {
+  const { accessToken } = req.body; 
+  try {
+    const result = await signOutUser(accessToken);
+    res.json({ message: "✅ Sign out successful", result });
+  }
+  catch (err) {
+    res.status(400).json({ error: err.message });
+  }     
+});
 module.exports = router;

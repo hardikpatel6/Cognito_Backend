@@ -255,11 +255,7 @@ Resources:
       - Statement:
           Effect: Allow
           Action:
-          - cognito-idp:AdminCreateUser
-          - cognito-idp:AdminInitiateAuth
-          - cognito-idp:AdminConfirmSignUp
           - cognito-idp:SignUp
-          - cognito-idp:ConfirmSignUp
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
@@ -291,10 +287,6 @@ Resources:
       - Statement:
           Effect: Allow
           Action:
-          - cognito-idp:AdminCreateUser
-          - cognito-idp:AdminInitiateAuth
-          - cognito-idp:AdminConfirmSignUp
-          - cognito-idp:SignUp
           - cognito-idp:ConfirmSignUp
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
@@ -327,11 +319,7 @@ Resources:
       - Statement:
           Effect: Allow
           Action:
-          - cognito-idp:AdminCreateUser
           - cognito-idp:AdminInitiateAuth
-          - cognito-idp:AdminConfirmSignUp
-          - cognito-idp:SignUp
-          - cognito-idp:ConfirmSignUp
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
       Events:
@@ -342,6 +330,70 @@ Resources:
             Method: post
     Metadata:
       SamResourceId: SigninFunction
+  ForgotPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.forgotPasswordHandler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: ForgotPasswordFunction
+      Layers:
+      - Ref: CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:ForgotPassword
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Events:
+        SigninApi:
+          Type: Api
+          Properties:
+            Path: /auth/forgot-password
+            Method: post
+    Metadata:
+      SamResourceId: ForgotPasswordFunction
+  ConfirmNewPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.confirmNewPasswordHandler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: ConfirmNewPasswordFunction
+      Layers:
+      - Ref: CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:ConfirmForgotPassword
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Events:
+        SigninApi:
+          Type: Api
+          Properties:
+            Path: /auth/confirm-new-password
+            Method: post
+    Metadata:
+      SamResourceId: ConfirmNewPasswordFunction
 Outputs:
   UserPoolId:
     Description: UserPool Id.

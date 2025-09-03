@@ -362,6 +362,33 @@ Resources:
           Properties:
             Path: /auth/confirm-new-password
             Method: post
+  SignOutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler:  lambda.signoutHandler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: ./src
+      Layers:
+        - !Ref CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref MyUserPool
+          USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            Effect: Allow
+            Action:
+              - cognito-idp:GlobalSignOut
+            Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Events:
+        SigninApi:
+          Type: Api
+          Properties:
+            Path: /auth/signout
+            Method: post
 Outputs:
   UserPoolId:
     Description: UserPool Id.

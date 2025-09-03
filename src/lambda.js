@@ -1,4 +1,4 @@
-const { signInUser, signUpUser, confirmUser,forgotPassword,confirmNewPassword } = require("./utils/cognito");
+const { signInUser, signUpUser, confirmUser,forgotPassword,confirmNewPassword,signOutUser } = require("./utils/cognito");
 
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
@@ -90,6 +90,33 @@ exports.confirmNewPasswordHandler = async (event) => {
       body: JSON.stringify({
         error: err.message
       }),
+    };
+  }
+};
+
+exports.signoutHandler = async (event) => {
+  try {
+    const accessToken = event.headers.Authorization.split(' ')[1];
+
+    if (!accessToken) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: "Authorization header with token is required." }),
+      };
+    }
+
+    const message = await signOutUser(accessToken);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message,
+      }),
+    };
+  } catch (err) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
