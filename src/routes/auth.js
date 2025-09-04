@@ -47,7 +47,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-router.post("/confirm-new-password", async (req, res) => {
+router.post("/confirm-password", async (req, res) => {
   const { email, code, newPassword } = req.body;
   try {
     const result = await confirmNewPassword(email, code, newPassword);

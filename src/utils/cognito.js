@@ -97,7 +97,7 @@ async function forgotPassword(email) {
   });
 }
 
-async function confirmNewPassword(email, newPassword, verificationCode) {
+async function confirmNewPassword(email, newPassword, code) {
   return new Promise((resolve, reject) => {
     const userData = {
       Username: email,
@@ -105,7 +105,7 @@ async function confirmNewPassword(email, newPassword, verificationCode) {
     };
     const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
 
-    cognitoUser.confirmPassword(verificationCode, newPassword, {
+    cognitoUser.confirmPassword(code, newPassword, {
       onSuccess: () => {
         resolve("Password successfully changed.");
       },

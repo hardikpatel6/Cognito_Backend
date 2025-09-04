@@ -93,9 +93,9 @@ exports.forgotPasswordHandler = async (event) => {
 
 exports.confirmNewPasswordHandler = async (event) => {
   try {
-    const { email, password, verificationCode } = JSON.parse(event.body);
+    const { email, password, code } = JSON.parse(event.body);
 
-    const result = await confirmNewPassword(email, password, verificationCode);
+    const result = await confirmNewPassword(email, password, code);
 
     return {
       statusCode: 200,
