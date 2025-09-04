@@ -396,7 +396,7 @@ Resources:
         ConfirmNewPasswordApi:
           Type: Api
           Properties:
-            Path: /auth/confirm-new-password
+            Path: /auth/confirm-password
             Method: post
     Metadata:
       SamResourceId: ConfirmNewPasswordFunction
