@@ -106,7 +106,6 @@ exports.confirmNewPasswordHandler = async (event) => {
     },
       body: JSON.stringify({
         message: "✅ Password successfully changed",
-        redirectUrl: "/signin",
       }),
     };
   } catch (err) {
