@@ -9,7 +9,7 @@ exports.signupHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-      "Access-Control-Allow-Origin": "http://localhost:4000, https://main.d2va1lk6qgvlk8.amplifyapp.com",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "OPTIONS,POST",
     },
@@ -33,7 +33,7 @@ exports.confirmHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-      "Access-Control-Allow-Origin": "http://localhost:4000, https://main.d2va1lk6qgvlk8.amplifyapp.com",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "OPTIONS,POST",
     },
@@ -56,7 +56,7 @@ exports.signinHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-      "Access-Control-Allow-Origin": "http://localhost:4000, https://main.d2va1lk6qgvlk8.amplifyapp.com",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "OPTIONS,POST",
     },
@@ -77,7 +77,7 @@ exports.forgotPasswordHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-      "Access-Control-Allow-Origin": "http://localhost:4000, https://main.d2va1lk6qgvlk8.amplifyapp.com",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "OPTIONS,POST",
     },
@@ -100,7 +100,7 @@ exports.confirmNewPasswordHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-      "Access-Control-Allow-Origin": "http://localhost:4000, https://main.d2va1lk6qgvlk8.amplifyapp.com",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "OPTIONS,POST",
     },
@@ -135,7 +135,7 @@ exports.signoutHandler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-      "Access-Control-Allow-Origin": "http://localhost:4000, https://main.d2va1lk6qgvlk8.amplifyapp.com",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "OPTIONS,POST",
     },
