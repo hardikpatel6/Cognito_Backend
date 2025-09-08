@@ -242,6 +242,7 @@ Resources:
         Variables:
           USER_POOL_ID: !Ref MyUserPool
           USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
+          SES_EMAIL_SOURCE: "patelhardikp6@gmail.com"
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -249,6 +250,7 @@ Resources:
             Action:
               - cognito-idp:SignUp
             Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+        - !Ref SESEmailPolicy
       Events:
         SignupApi:
           Type: Api
@@ -298,6 +300,7 @@ Resources:
         Variables:
           USER_POOL_ID: !Ref MyUserPool
           USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
+          SES_EMAIL_SOURCE: "patelhardikp6@gmail.com"
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -305,6 +308,7 @@ Resources:
             Action:
               - cognito-idp:AdminInitiateAuth
             Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+        - !Ref SESEmailPolicy
       Events:
         SigninApi:
           Type: Api
@@ -394,6 +398,19 @@ Resources:
           Properties:
             Path: /auth/signout
             Method: post
+
+  SESEmailPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub "${AWS::StackName}-ses-email-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ses:SendEmail
+              - ses:SendRawEmail
+            Resource: "*"
 Outputs:
   UserPoolId:
     Description: UserPool Id.

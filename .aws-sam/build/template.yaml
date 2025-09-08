@@ -100,6 +100,7 @@ Resources:
       AttributeMapping:
         email: email
         name: name
+        picture: picture
   MyIdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
@@ -256,6 +257,7 @@ Resources:
             Ref: MyUserPool
           USER_POOL_CLIENT_ID:
             Ref: MyUserPoolClient
+          SES_EMAIL_SOURCE: patelhardikp6@gmail.com
       Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -264,6 +266,7 @@ Resources:
           - cognito-idp:SignUp
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      - Ref: SESEmailPolicy
       Events:
         SignupApi:
           Type: Api
@@ -320,6 +323,7 @@ Resources:
             Ref: MyUserPool
           USER_POOL_CLIENT_ID:
             Ref: MyUserPoolClient
+          SES_EMAIL_SOURCE: patelhardikp6@gmail.com
       Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -328,6 +332,7 @@ Resources:
           - cognito-idp:AdminInitiateAuth
           Resource:
             Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      - Ref: SESEmailPolicy
       Events:
         SigninApi:
           Type: Api
@@ -432,6 +437,19 @@ Resources:
             Method: post
     Metadata:
       SamResourceId: SignOutFunction
+  SESEmailPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName:
+        Fn::Sub: ${AWS::StackName}-ses-email-policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - ses:SendEmail
+          - ses:SendRawEmail
+          Resource: '*'
 Outputs:
   UserPoolId:
     Description: UserPool Id.
@@ -477,3 +495,15 @@ Outputs:
     Description: API Gateway endpoint
     Value:
       Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+  HostedUIDomain:
+    Description: Cognito Hosted UI Domain
+    Value:
+      Fn::Sub: https://${AWS::StackName}-${Stage}.auth.${AWS::Region}.amazoncognito.com
+  GoogleRedirectURI:
+    Description: Use this as Authorized redirect URI in Google OAuth settings
+    Value:
+      Fn::Sub: https://${AWS::StackName}-${Stage}.auth.${AWS::Region}.amazoncognito.com/oauth2/idpresponse
+  ExampleLoginURL:
+    Description: Hosted UI login URL (Google + Cognito)
+    Value:
+      Fn::Sub: https://${AWS::StackName}-${Stage}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${MyUserPoolClient}&response_type=code&scope=openid+email+profile&redirect_uri=${FrontendUrl}

@@ -1,11 +1,31 @@
 const { signInUser, signUpUser, confirmUser, forgotPassword, confirmNewPassword, signOutUser } = require("./utils/cognito");
-
+const AWS = require("aws-sdk");
+require("dotenv").config({ path: '../.env' });
+const ses = new AWS.SES({ apiVersion: '2010-12-01' });
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
   try {
     const { email, password, name } = JSON.parse(event.body);
     const result = await signUpUser(email, password, name);
 
+    const params = {
+      Source: process.env.FROM_EMAIL,
+      Destination: {
+         ToAddresses: [email],
+      },
+      Message: {
+        Subject: { Data: "Welcome to Our App!" },
+        Body: {
+          Text: { Data: `Hello ${name},\n\nThank you for signing up! We're excited to have you on board.\n\nBest regards,\nThe Team` },
+        },
+      },
+    };
+    try{
+      await ses.sendEmail(params).promise();
+      console.log("Welcome email sent to:", email);
+    }catch(sesErr){
+      console.error("Error sending welcome email:", sesErr);
+    }
     return {
       statusCode: 200,
       headers: {
@@ -53,6 +73,26 @@ exports.signinHandler = async (event) => {
     const { email, password } = JSON.parse(event.body);
     const token = await signInUser(email, password);
 
+    const params = {
+      Source: process.env.FROM_EMAIL,
+      Destination: {
+          ToAddresses: [email],
+      },
+      Message: {
+        Subject: { Data: "Welcome Back" },
+        Body: {
+          Text: {
+            Data: `Hi ${email},\n\nYou have successfully signed in. We're happy to see you again!`,
+          },
+        },
+      },
+    };
+    try{
+      await ses.sendEmail(params).promise();
+      console.log(`✅ Welcome email sent to ${email}`);
+    }catch(sesErr){
+      console.error("Error sending welcome email:", sesErr);
+    }
     return {
       statusCode: 200,
       headers: {
