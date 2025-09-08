@@ -57,6 +57,10 @@ Resources:
         - Name: name
           Required: true
           Mutable: true
+      EmailConfiguration:
+        EmailSendingAccount: DEVELOPER
+        From: "patelhardikp6@gmail.com"
+        SourceArn: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/patelhardikp6@gmail.com
   MyUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     DependsOn: GoogleIdentityProvider
