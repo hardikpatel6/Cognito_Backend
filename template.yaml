@@ -57,10 +57,6 @@ Resources:
         - Name: name
           Required: true
           Mutable: true
-      EmailConfiguration:
-        EmailSendingAccount: DEVELOPER
-        From: "patelhardikp6@gmail.com"
-        SourceArn: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/patelhardikp6@gmail.com
   MyUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     DependsOn: GoogleIdentityProvider
@@ -246,7 +242,7 @@ Resources:
         Variables:
           USER_POOL_ID: !Ref MyUserPool
           USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
-          SES_EMAIL_SOURCE: "patelhardikp6@gmail.com"
+          FROM_EMAIL: "patelhardikp6@gmail.com"
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
@@ -304,7 +300,7 @@ Resources:
         Variables:
           USER_POOL_ID: !Ref MyUserPool
           USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
-          SES_EMAIL_SOURCE: "patelhardikp6@gmail.com"
+          FROM_EMAIL: "patelhardikp6@gmail.com"
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:

@@ -16,7 +16,15 @@ exports.signupHandler = async (event) => {
       Message: {
         Subject: { Data: "Welcome to Our App!" },
         Body: {
-          Text: { Data: `Hello ${name},\n\nThank you for signing up! We're excited to have you on board.\n\nBest regards,\nThe Team` },
+          Html: {
+            Data: `
+              <h1 style="color:#4CAF50;">Welcome, ${name}!</h1>
+              <p>Thank you for signing up with MyApp 🚀.</p>
+              <p>Please check your inbox for a confirmation code to verify your account.</p>
+              <hr/>
+              <small>Team MyApp</small>
+            `,
+          },
         },
       },
     };
