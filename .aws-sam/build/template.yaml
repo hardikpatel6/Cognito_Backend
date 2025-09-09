@@ -257,7 +257,7 @@ Resources:
             Ref: MyUserPool
           USER_POOL_CLIENT_ID:
             Ref: MyUserPoolClient
-          SES_EMAIL_SOURCE: patelhardikp6@gmail.com
+          FROM_EMAIL: patelhardikp6@gmail.com
       Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -323,7 +323,7 @@ Resources:
             Ref: MyUserPool
           USER_POOL_CLIENT_ID:
             Ref: MyUserPoolClient
-          SES_EMAIL_SOURCE: patelhardikp6@gmail.com
+          FROM_EMAIL: patelhardikp6@gmail.com
       Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:

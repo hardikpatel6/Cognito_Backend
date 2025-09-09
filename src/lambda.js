@@ -2,6 +2,7 @@ const { signInUser, signUpUser, confirmUser, forgotPassword, confirmNewPassword,
 const AWS = require("aws-sdk");
 require("dotenv").config({ path: '../.env' });
 const ses = new AWS.SES({ apiVersion: '2010-12-01' });
+
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
   try {
@@ -118,6 +119,38 @@ exports.signinHandler = async (event) => {
   }
 };
 
+exports.PostAuthLambda = async (event) => {
+  // event.userName for federated users is usually their email
+  const email = event.userName;
+  const name = event.request.userAttributes?.name || email;
+
+  const params = {
+    Source: process.env.FROM_EMAIL,
+    Destination: { ToAddresses: [email] },
+    Message: {
+      Subject: { Data: "👋 Welcome Back!" },
+      Body: {
+        Html: {
+          Data: `
+            <h2>Welcome back, ${name}!</h2>
+            <p>We’re happy to see you again 🚀</p>
+            <hr/>
+            <small>Team MyApp</small>
+          `,
+        },
+      },
+    },
+  };
+
+  try {
+    await ses.sendEmail(params).promise();
+    console.log(`✅ Welcome back email sent to ${email}`);
+  } catch (err) {
+    console.error("SES send email error:", err);
+  }
+
+  return event; // Must always return the event for PostAuthentication Lambda
+};
 exports.forgotPasswordHandler = async (event) => {
   try {
     const { email } = JSON.parse(event.body);

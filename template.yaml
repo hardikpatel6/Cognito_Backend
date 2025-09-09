@@ -49,6 +49,8 @@ Resources:
       UserPoolName: !Sub "${AWS::StackName}-user-pool"
       AutoVerifiedAttributes:
         - email
+      LambdaConfig:
+        PostAuthentication: !GetAtt PostAuthLambda.Arn
       MfaConfiguration: "OFF"
       Schema:
         - Name: email
@@ -316,6 +318,30 @@ Resources:
             Path: /auth/signin
             Method: post
 
+  PostAuthLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.PostAuthLambda
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 15
+      CodeUri: ./src
+      Layers:
+        - !Ref CognitoDependenciesLayer
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref MyUserPool
+          USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
+          FROM_EMAIL: "patelhardikp6@gmail.com"
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            Effect: Allow
+            Action:
+              - ses.SendEmail
+              - ses.SendRawEmail
+            Resource: "*"
+  
   ForgotPasswordFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -371,6 +397,7 @@ Resources:
           Properties:
             Path: /auth/confirm-password
             Method: post
+  
   SignOutFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -411,6 +438,7 @@ Resources:
               - ses:SendEmail
               - ses:SendRawEmail
             Resource: "*"
+
 Outputs:
   UserPoolId:
     Description: UserPool Id.
