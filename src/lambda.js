@@ -2,6 +2,7 @@ const { signInUser, signUpUser, confirmUser, forgotPassword, confirmNewPassword,
 const AWS = require("aws-sdk");
 require("dotenv").config({ path: '../.env' });
 const ses = new AWS.SES({ apiVersion: '2010-12-01' });
+const dynamo = new AWS.DynamoDB.DocumentClient();
 
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
@@ -119,12 +120,28 @@ exports.signinHandler = async (event) => {
   }
 };
 
+// ✅ Post Authentication (Lambda)
 exports.PostAuthLambda = async (event) => {
   // event.userName for federated users is usually their email
   const email = event.userName;
   const name = event.request.userAttributes?.name || email;
+  const provider = event.userName.startsWith("Google_") ? "Google" : "Cognito";
+  
+  const dbParams = {
+    TableName: process.env.USER_TABLE,
+    Key: { userId: event.userName },
+    UpdateExpression: "SET email = :email, #nm = :name, provider = :provider, lastLogin = :lastLogin",
+    ExpressionAttributeNames: { "#nm": "name" },
+    ExpressionAttributeValues: {
+      ":email": email,
+      ":name": name,
+      ":provider": provider,
+      ":lastLogin": new Date().toISOString(),
+    },
+    ReturnValues: "ALL_NEW",
+  };
 
-  const params = {
+  const emailParams = {
     Source: process.env.FROM_EMAIL,
     Destination: { ToAddresses: [email] },
     Message: {
@@ -143,14 +160,19 @@ exports.PostAuthLambda = async (event) => {
   };
 
   try {
-    await ses.sendEmail(params).promise();
-    console.log(`✅ Welcome back email sent to ${email}`);
+    await Promise.all([
+      dynamo.update(dbParams).promise(),
+      ses.sendEmail(emailParams).promise()
+    ]);
+    console.log(`✅ User ${email} data updated and welcome back email sent.`);
   } catch (err) {
-    console.error("SES send email error:", err);
+    console.error("Error in PostAuthLambda:", err);
   }
 
   return event; // Must always return the event for PostAuthentication Lambda
 };
+
+// ✅ Forgot Password (Lambda)
 exports.forgotPasswordHandler = async (event) => {
   try {
     const { email } = JSON.parse(event.body);
@@ -172,6 +194,7 @@ exports.forgotPasswordHandler = async (event) => {
   }
 };
 
+// ✅ Confirm New Password (Lambda)
 exports.confirmNewPasswordHandler = async (event) => {
   try {
     const { email, password, code } = JSON.parse(event.body);
@@ -199,6 +222,7 @@ exports.confirmNewPasswordHandler = async (event) => {
   }
 };
 
+// ✅ Signout (Lambda)
 exports.signoutHandler = async (event) => {
   try {
     const accessToken = event.headers.Authorization.split(' ')[1];

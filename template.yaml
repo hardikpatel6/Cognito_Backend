@@ -42,7 +42,20 @@ Globals:
       AllowMethods: "'POST,OPTIONS'"
       AllowHeaders: "'Content-Type,Authorization'"
       AllowOrigin: "'*'"
+
 Resources:
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+
   MyUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -59,6 +72,7 @@ Resources:
         - Name: name
           Required: true
           Mutable: true
+  
   MyUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     DependsOn: GoogleIdentityProvider
@@ -100,6 +114,7 @@ Resources:
         email: email
         name: name
         picture: picture
+ 
   MyIdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
@@ -181,6 +196,7 @@ Resources:
       Roles:
         authenticated: !GetAtt AuthenticatedRole.Arn
         unauthenticated: !GetAtt UnauthenticatedRole.Arn
+  
   AmplifyApp:
     Type: AWS::Amplify::App
     Properties:
@@ -209,6 +225,7 @@ Resources:
               cache:
                 paths:
                   - node_modules/**/*
+  
   AmplifyBranch:
     Type: AWS::Amplify::Branch
     Properties:
@@ -341,6 +358,16 @@ Resources:
               - ses.SendEmail
               - ses.SendRawEmail
             Resource: "*"
+        - Satement:
+            Effect: Allow
+            Action:
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:GetItem
+              - dynamodb:Scan
+              - dynamodb:Query
+              - dynamodb:DeleteItem
+            Resource: !GetAtt UserTable.Arn
   
   ForgotPasswordFunction:
     Type: AWS::Serverless::Function
