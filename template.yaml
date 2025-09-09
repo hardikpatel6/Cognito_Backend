@@ -62,8 +62,6 @@ Resources:
       UserPoolName: !Sub "${AWS::StackName}-user-pool"
       AutoVerifiedAttributes:
         - email
-      LambdaConfig:
-        PostAuthentication: !GetAtt PostAuthLambda.Arn
       MfaConfiguration: "OFF"
       Schema:
         - Name: email
@@ -347,27 +345,19 @@ Resources:
         - !Ref CognitoDependenciesLayer
       Environment:
         Variables:
-          USER_POOL_ID: !Ref MyUserPool
-          USER_POOL_CLIENT_ID: !Ref MyUserPoolClient
           FROM_EMAIL: "patelhardikp6@gmail.com"
+          USER_TABLE: !Ref UserTable
       Policies:
         - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
         - Statement:
-            Effect: Allow
-            Action:
-              - ses.SendEmail
-              - ses.SendRawEmail
-            Resource: "*"
-        - Satement:
-            Effect: Allow
-            Action:
-              - dynamodb:PutItem
-              - dynamodb:UpdateItem
-              - dynamodb:GetItem
-              - dynamodb:Scan
-              - dynamodb:Query
-              - dynamodb:DeleteItem
-            Resource: !GetAtt UserTable.Arn
+              # SES permissions
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: "*"
   
   ForgotPasswordFunction:
     Type: AWS::Serverless::Function
