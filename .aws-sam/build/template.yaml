@@ -364,6 +364,10 @@ Resources:
       - Ref: CognitoDependenciesLayer
       Environment:
         Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: MyUserPoolClient
           FROM_EMAIL: patelhardikp6@gmail.com
           USER_TABLE:
             Ref: UserTable
@@ -380,6 +384,74 @@ Resources:
           Resource: '*'
     Metadata:
       SamResourceId: PostAuthLambda
+  PostAuthLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: PostAuthLambda
+      Principal: cognito-idp.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+  UpdateUserPoolLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.updateUserPoolHandler
+      Runtime: nodejs22.x
+      Timeout: 30
+      MemorySize: 512
+      CodeUri: UpdateUserPoolLambda
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:UpdateUserPool
+          Resource:
+            Fn::Sub: arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyUserPool}
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          POST_AUTH_LAMBDA_ARN:
+            Fn::GetAtt:
+            - PostAuthLambda
+            - Arn
+    Metadata:
+      SamResourceId: UpdateUserPoolLambda
+  AttachLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.customLambda
+      Runtime: nodejs22.x
+      CodeUri: AttachLambdaFunction
+      Timeout: 60
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          Effect: Allow
+          Action: cognito-idp:UpdateUserPool
+          Resource:
+            Fn::GetAtt:
+            - MyUserPool
+            - Arn
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: MyUserPool
+          POST_AUTH_LAMBDA_ARN:
+            Fn::GetAtt:
+            - PostAuthLambda
+            - Arn
+    Metadata:
+      SamResourceId: AttachLambdaFunction
+  AttachLambdaCustomResource:
+    Type: Custom::AttachLambda
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+        - AttachLambdaFunction
+        - Arn
   ForgotPasswordFunction:
     Type: AWS::Serverless::Function
     Properties:

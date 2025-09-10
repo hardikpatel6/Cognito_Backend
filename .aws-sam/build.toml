@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "src/lambda.handler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["SignUpFunction", "ConfirmFunction", "SigninFunction", "PostAuthLambda", "ForgotPasswordFunction", "ConfirmNewPasswordFunction", "SignOutFunction"]
+functions = ["SignUpFunction", "ConfirmFunction", "SigninFunction", "PostAuthLambda", "UpdateUserPoolLambda", "AttachLambdaFunction", "ForgotPasswordFunction", "ConfirmNewPasswordFunction", "SignOutFunction"]
 
 [layer_build_definitions]

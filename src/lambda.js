@@ -3,6 +3,28 @@ const AWS = require("aws-sdk");
 require("dotenv").config({ path: '../.env' });
 const ses = new AWS.SES({ apiVersion: '2010-12-01' });
 const dynamo = new AWS.DynamoDB.DocumentClient();
+const cognito = new AWS.CognitoIdentityServiceProvider();
+
+// ✅ Update User Pool (Custom Resource Lambda)
+exports.updateUserPoolHandler = async (event) => {
+  console.log("Event:", JSON.stringify(event));
+
+  if (event.RequestType === "Delete") {
+    return { PhysicalResourceId: event.LogicalResourceId };
+  }
+
+  const { UserPoolId, PostAuthLambdaArn } = event.ResourceProperties;
+
+  await cognito.updateUserPool({
+    UserPoolId,
+    LambdaConfig: {
+      PostAuthentication: PostAuthLambdaArn,
+      PostConfirmation: PostAuthLambdaArn
+    }
+  }).promise();
+
+  return { PhysicalResourceId: event.LogicalResourceId };
+};
 
 // ✅ Signup (Lambda)
 exports.signupHandler = async (event) => {
@@ -125,22 +147,22 @@ exports.PostAuthLambda = async (event) => {
   // event.userName for federated users is usually their email
   const email = event.userName;
   const name = event.request.userAttributes?.name || email;
-  const provider = event.userName.startsWith("Google_") ? "Google" : "Cognito";
-  
+  const sub = event.request.userAttributes?.sub || event.userName;
+
   const dbParams = {
     TableName: process.env.USER_TABLE,
-    Key: { userId: event.userName },
-    UpdateExpression: "SET email = :email, #nm = :name, provider = :provider, lastLogin = :lastLogin",
+    Key: { userId: sub },
+    UpdateExpression: "SET email = :email,#nm = if_not_exists(#nm,:name), lastLogin = :lastLogin,provider = :provider",
     ExpressionAttributeNames: { "#nm": "name" },
     ExpressionAttributeValues: {
       ":email": email,
       ":name": name,
-      ":provider": provider,
+      ":createdAt": new Date().toISOString(),
       ":lastLogin": new Date().toISOString(),
+      ":provider": event.userPoolId.startsWith("Google") ? "Google" : "Cognito"
     },
-    ReturnValues: "ALL_NEW",
+    ReturnValues: "ALL_NEW"
   };
-
   const emailParams = {
     Source: process.env.FROM_EMAIL,
     Destination: { ToAddresses: [email] },
@@ -162,9 +184,10 @@ exports.PostAuthLambda = async (event) => {
   try {
     await Promise.all([
       dynamo.update(dbParams).promise(),
-      ses.sendEmail(emailParams).promise()
+      ses.sendEmail(emailParams).promise(),
     ]);
-    console.log(`✅ User ${email} data updated and welcome back email sent.`);
+
+    console.log(`✅ User ${email} welcome back email sent.`);
   } catch (err) {
     console.error("Error in PostAuthLambda:", err);
   }
@@ -255,3 +278,56 @@ exports.signoutHandler = async (event) => {
     };
   }
 };
+
+
+exports.customLambda = async (event, context) => {
+  console.log("EVENT:", JSON.stringify(event, null, 2));
+
+  try {
+    if (event.RequestType === "Create" || event.RequestType === "Update") {
+      const cognito = new AWS.CognitoIdentityServiceProvider();
+
+      await cognito.updateUserPool({
+        UserPoolId: process.env.USER_POOL_ID,
+        LambdaConfig: {
+          PostAuthentication: process.env.POST_AUTH_LAMBDA_ARN,
+        },
+      }).promise();
+    }
+
+    await sendResponse(event, context, "SUCCESS");
+  } catch (err) {
+    console.error("❌ ERROR:", err);
+    await sendResponse(event, context, "FAILED");
+  }
+};
+
+function sendResponse(event, context, responseStatus) {
+  return new Promise((resolve, reject) => {
+    const responseBody = JSON.stringify({
+      Status: responseStatus,
+      Reason: `See CloudWatch logs: ${context.logStreamName}`,
+      PhysicalResourceId: context.logStreamName,
+      StackId: event.StackId,
+      RequestId: event.RequestId,
+      LogicalResourceId: event.LogicalResourceId,
+    });
+
+    const parsedUrl = url.parse(event.ResponseURL);
+    const options = {
+      hostname: parsedUrl.hostname,
+      port: 443,
+      path: parsedUrl.path,
+      method: "PUT",
+      headers: {
+        "content-type": "",
+        "content-length": responseBody.length,
+      },
+    };
+
+    const req = https.request(options, res => resolve());
+    req.on("error", err => reject(err));
+    req.write(responseBody);
+    req.end();
+  });
+}
