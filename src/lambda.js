@@ -32,6 +32,10 @@ exports.signupHandler = async (event) => {
     const { email, password, name } = JSON.parse(event.body);
     const result = await signUpUser(email, password, name);
 
+        console.log("Cognito signup result:", JSON.stringify(result, null, 2));
+
+    const userId = result?.UserSub || result?.userSub || result?.user?.sub || Date.now().toString();
+
     const params = {
       Source: process.env.FROM_EMAIL,
       Destination: {
@@ -52,12 +56,21 @@ exports.signupHandler = async (event) => {
         },
       },
     };
-    try{
+    const dbParams = {
+      TableName: process.env.USER_TABLE,
+      Item: {
+        userId,
+        email,
+        name,
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        provider: "Cognito"
+      },
+    };
+      await dynamo.put(dbParams).promise();
+      console.log("User data stored in DynamoDB for:", email);
       await ses.sendEmail(params).promise();
       console.log("Welcome email sent to:", email);
-    }catch(sesErr){
-      console.error("Error sending welcome email:", sesErr);
-    }
     return {
       statusCode: 200,
       headers: {
@@ -149,17 +162,19 @@ exports.PostAuthLambda = async (event) => {
   const name = event.request.userAttributes?.name || email;
   const sub = event.request.userAttributes?.sub || event.userName;
 
+  const placeholderPassword = "GoogleAuthPlaceholderPassword"; // Random 8-char passwor
   const dbParams = {
     TableName: process.env.USER_TABLE,
     Key: { userId: sub },
-    UpdateExpression: "SET email = :email,#nm = if_not_exists(#nm,:name), lastLogin = :lastLogin,provider = :provider",
+    UpdateExpression: "SET email = :email,#nm = if_not_exists(#nm,:name), lastLogin = :lastLogin,provider = :provider, #pwd = if_not_exists(#pwd,:password)",
     ExpressionAttributeNames: { "#nm": "name" },
     ExpressionAttributeValues: {
       ":email": email,
       ":name": name,
       ":createdAt": new Date().toISOString(),
       ":lastLogin": new Date().toISOString(),
-      ":provider": event.userPoolId.startsWith("Google") ? "Google" : "Cognito"
+      ":provider": event.triggerSource === "PostAuthentication_Authentication" ? "Google" : "Cognito",
+      ":password": placeholderPassword,
     },
     ReturnValues: "ALL_NEW"
   };
